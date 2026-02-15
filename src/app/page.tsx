@@ -1,141 +1,178 @@
 import Link from "next/link";
-import { 
-  TrendingUp, 
-  CheckCircle2, 
-  FileText, 
-  Zap,
-  Palette,
-  Database,
-  Activity,
-  ArrowUpRight,
-  Clock
-} from "lucide-react";
 
 const stats = [
-  { label: "Active Tasks", value: "3", change: "+2 today", icon: Zap, color: "from-violet-500 to-purple-500" },
-  { label: "Completed", value: "47", change: "This week", icon: CheckCircle2, color: "from-emerald-500 to-teal-500" },
-  { label: "Files", value: "128", change: "12.4 MB", icon: FileText, color: "from-blue-500 to-cyan-500" },
-  { label: "API Calls", value: "1.2k", change: "Last 24h", icon: TrendingUp, color: "from-amber-500 to-orange-500" },
+  { label: "Active Tasks", value: "3", detail: "+2 today", emoji: "📋" },
+  { label: "Completed", value: "47", detail: "This week", emoji: "✅" },
+  { label: "Files", value: "128", detail: "12.4 MB", emoji: "📁" },
+  { label: "API Calls", value: "1.2k", detail: "Last 24h", emoji: "⚡" },
 ];
 
 const quickActions = [
-  { name: "Canvas", href: "/canvas", icon: Palette, description: "Visual workspace", color: "violet" },
-  { name: "To-Dos", href: "/todos", icon: CheckCircle2, description: "Task management", color: "emerald" },
-  { name: "Database", href: "/database", icon: Database, description: "Data explorer", color: "blue" },
-  { name: "Activity", href: "/activity", icon: Activity, description: "Live feed", color: "amber" },
+  { name: "Canvas", href: "/canvas", description: "Visual workspace for ideas", emoji: "🎨" },
+  { name: "To-Dos", href: "/todos", description: "Task management", emoji: "☑️" },
+  { name: "Database", href: "/database", description: "Explore your data", emoji: "📊" },
+  { name: "Activity", href: "/activity", description: "Live event feed", emoji: "⚡" },
 ];
 
 const recentActivity = [
-  { time: "11:38", action: "2-Wochen Report erstellt", type: "task" },
-  { time: "11:16", action: "Schlafenszeit-Cron gefixt", type: "system" },
-  { time: "05:00", action: "Reminder für morgen gesetzt", type: "cron" },
-  { time: "04:55", action: "Gute Nacht gesagt", type: "message" },
+  { time: "2 min ago", action: "2-Wochen Report erstellt", type: "task" },
+  { time: "24 min ago", action: "Schlafenszeit-Cron gefixt", type: "system" },
+  { time: "6h ago", action: "Reminder für morgen gesetzt", type: "cron" },
+  { time: "6h ago", action: "Gute Nacht gesagt", type: "message" },
+  { time: "8h ago", action: "Marokko-Buch Kapitel 28 geschrieben", type: "task" },
+  { time: "Yesterday", action: "Dashboard deployed to Vercel", type: "system" },
 ];
 
 const typeColors: Record<string, string> = {
-  task: "bg-violet-500/20 text-violet-400 border-violet-500/30",
-  system: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-  cron: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  message: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  task: "bg-blue-50 text-blue-600",
+  system: "bg-orange-50 text-orange-600",
+  cron: "bg-purple-50 text-purple-600",
+  message: "bg-green-50 text-green-600",
 };
 
 export default function Dashboard() {
   return (
-    <div className="p-8 max-w-7xl mx-auto">
+    <div className="max-w-[960px] mx-auto px-6 py-8 sm:px-10 sm:py-10 lg:px-16">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-zinc-500 text-sm mb-2">
-          <Clock className="w-4 h-4" />
-          <span>Sunday, February 15th, 2026</span>
-        </div>
-        <h1 className="text-4xl font-bold mb-2">
-          Good morning, <span className="gradient-text">Sami</span>
+      <div className="mb-10">
+        <p className="text-[12px] text-[var(--secondary)] mb-2">
+          Sunday, February 15th, 2026 · 4:30 PM
+        </p>
+        <h1 className="text-[28px] sm:text-[32px] font-bold text-[var(--fg)] leading-tight">
+          Good afternoon, Sami ✌️
         </h1>
-        <p className="text-zinc-400 text-lg">Here&apos;s what&apos;s happening today</p>
+        <p className="text-[15px] text-[var(--secondary)] mt-1">
+          Here&apos;s what&apos;s happening with Imas today
+        </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              className="glass border border-zinc-800/50 rounded-2xl p-6 card-hover border-glow"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center`}>
-                  <Icon className="w-6 h-6 text-white" />
-                </div>
-                <ArrowUpRight className="w-5 h-5 text-zinc-500" />
-              </div>
-              <p className="text-3xl font-bold mb-1">{stat.value}</p>
-              <div className="flex items-center justify-between">
-                <p className="text-zinc-400 text-sm">{stat.label}</p>
-                <p className="text-zinc-500 text-xs">{stat.change}</p>
-              </div>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
+        {stats.map((stat) => (
+          <div key={stat.label} className="notion-card p-4">
+            <div className="flex items-start justify-between mb-2">
+              <span className="text-[18px]">{stat.emoji}</span>
             </div>
-          );
-        })}
+            <p className="text-[24px] font-semibold text-[var(--fg)] leading-tight">{stat.value}</p>
+            <p className="text-[13px] text-[var(--fg)] mt-0.5">{stat.label}</p>
+            <p className="text-[11px] text-[var(--secondary)]">{stat.detail}</p>
+          </div>
+        ))}
       </div>
 
       {/* Quick Actions */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Quick Actions</h2>
-          <Link href="/activity" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
-            View all <ArrowUpRight className="w-4 h-4" />
-          </Link>
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="section-heading">Quick Actions</h2>
         </div>
-        <div className="grid grid-cols-4 gap-4">
-          {quickActions.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link
-                key={action.name}
-                href={action.href}
-                className="glass border border-zinc-800/50 rounded-2xl p-6 card-hover border-glow group"
-              >
-                <div className={`w-14 h-14 rounded-2xl bg-${action.color}-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                  <Icon className={`w-7 h-7 text-${action.color}-400`} />
-                </div>
-                <h3 className="font-semibold text-lg mb-1 group-hover:text-white transition-colors">
-                  {action.name}
-                </h3>
-                <p className="text-sm text-zinc-500">{action.description}</p>
-              </Link>
-            );
-          })}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {quickActions.map((action) => (
+            <Link
+              key={action.name}
+              href={action.href}
+              className="notion-card p-4 group cursor-pointer"
+            >
+              <span className="text-[20px] mb-2 inline-block group-hover:scale-110 transition-transform">
+                {action.emoji}
+              </span>
+              <p className="text-[13px] font-medium text-[var(--fg)] mb-0.5 group-hover:text-[var(--accent)] transition-colors">
+                {action.name}
+              </p>
+              <p className="text-[12px] text-[var(--secondary)]">{action.description}</p>
+              <span className="text-[var(--tertiary)] text-[12px] mt-2 block group-hover:text-[var(--accent)] transition-colors">
+                Open →
+              </span>
+            </Link>
+          ))}
         </div>
       </div>
 
       {/* Recent Activity */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">Recent Activity</h2>
-          <Link href="/activity" className="text-sm text-zinc-400 hover:text-white transition-colors flex items-center gap-1">
-            View all <ArrowUpRight className="w-4 h-4" />
+      <div className="mb-10">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="section-heading">Recent Activity</h2>
+          <Link href="/activity" className="text-[12px] text-[var(--secondary)] hover:text-[var(--fg)] transition-colors">
+            View all →
           </Link>
         </div>
-        <div className="glass border border-zinc-800/50 rounded-2xl overflow-hidden">
-          {recentActivity.map((item, i) => (
-            <div 
-              key={i} 
-              className={`flex items-center gap-4 p-4 hover:bg-zinc-800/30 transition-colors ${
-                i !== recentActivity.length - 1 ? "border-b border-zinc-800/50" : ""
-              }`}
-            >
-              <div className="w-2 h-2 rounded-full bg-violet-500" />
-              <span className="text-zinc-500 text-sm font-mono w-14">
-                {item.time}
-              </span>
-              <span className="flex-1 font-medium">{item.action}</span>
-              <span className={`text-xs px-3 py-1.5 rounded-full border ${typeColors[item.type]}`}>
-                {item.type}
-              </span>
-            </div>
-          ))}
+        <div className="notion-card overflow-hidden">
+          {/* Mobile: stacked list */}
+          <div className="sm:hidden divide-y divide-[var(--border)]">
+            {recentActivity.map((item, i) => (
+              <div key={i} className="px-4 py-3 hover:bg-[var(--hover)] transition-colors">
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${typeColors[item.type] || "bg-gray-50 text-gray-600"}`}>
+                    {item.type}
+                  </span>
+                  <span className="text-[11px] text-[var(--secondary)] font-mono">{item.time}</span>
+                </div>
+                <p className="text-[13px] text-[var(--fg)]">{item.action}</p>
+              </div>
+            ))}
+          </div>
+          {/* Desktop: table */}
+          <table className="w-full hidden sm:table">
+            <thead>
+              <tr className="border-b border-[var(--border)] bg-[var(--surface)]">
+                <th className="text-left px-4 py-2 text-[11px] font-semibold text-[var(--secondary)] uppercase tracking-wider w-24">Time</th>
+                <th className="text-left px-4 py-2 text-[11px] font-semibold text-[var(--secondary)] uppercase tracking-wider">Action</th>
+                <th className="text-left px-4 py-2 text-[11px] font-semibold text-[var(--secondary)] uppercase tracking-wider w-20">Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentActivity.map((item, i) => (
+                <tr
+                  key={i}
+                  className="border-b border-[var(--border)] last:border-0 hover:bg-[var(--hover)] transition-colors"
+                >
+                  <td className="px-4 py-2.5 text-[12px] text-[var(--secondary)] font-mono whitespace-nowrap">
+                    {item.time}
+                  </td>
+                  <td className="px-4 py-2.5 text-[13px] text-[var(--fg)]">
+                    {item.action}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${typeColors[item.type] || "bg-gray-50 text-gray-600"}`}>
+                      {item.type}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </div>
+
+      {/* System Status */}
+      <div className="mb-10">
+        <h2 className="section-heading mb-3">System Status</h2>
+        <div className="notion-card p-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <p className="text-[11px] text-[var(--secondary)] uppercase tracking-wide mb-1">Model</p>
+              <p className="text-[13px] text-[var(--fg)] font-medium">Kimi K2.5</p>
+            </div>
+            <div>
+              <p className="text-[11px] text-[var(--secondary)] uppercase tracking-wide mb-1">Uptime</p>
+              <p className="text-[13px] text-[var(--success)] font-medium">99.9%</p>
+            </div>
+            <div>
+              <p className="text-[11px] text-[var(--secondary)] uppercase tracking-wide mb-1">Memory</p>
+              <p className="text-[13px] text-[var(--fg)] font-medium">287 MB</p>
+            </div>
+            <div>
+              <p className="text-[11px] text-[var(--secondary)] uppercase tracking-wide mb-1">Version</p>
+              <p className="text-[13px] text-[var(--fg)] font-medium">2026.2.13</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Command Palette Hint */}
+      <div className="text-center py-4">
+        <p className="text-[12px] text-[var(--tertiary)]">
+          Press <kbd className="text-[11px] bg-[var(--surface)] border border-[var(--border)] rounded px-1.5 py-0.5 font-mono mx-0.5">⌘K</kbd> to search or run commands
+        </p>
       </div>
     </div>
   );

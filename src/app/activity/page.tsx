@@ -1,149 +1,144 @@
 "use client";
 
 import { useState } from "react";
-import { 
-  CheckCircle2, 
-  Settings, 
-  Clock, 
-  Mail, 
-  Mic, 
-  Heart,
-  Filter,
-  Download,
-  Search,
-  RefreshCw
-} from "lucide-react";
 
 const activityLog = [
-  { time: "11:38:42", action: "2-Wochen Report erstellt und per Email gesendet", type: "task", details: "PDF: 44KB, Email an boucharebsami0404@gmail.com" },
-  { time: "11:25:18", action: "Schlafenszeit-Cron auf 22:00 umgestellt", type: "system", details: "Job ID: dd73cfb2-..." },
-  { time: "11:18:33", action: "PDF generiert: 2-wochen-report.pdf", type: "file", details: "WeasyPrint, 44KB" },
-  { time: "11:06:23", action: "Email gesendet: Es schneit in Hamburg", type: "email", details: "SMTP via boucharebsamipaypal@gmail.com" },
-  { time: "05:00:12", action: "Reminder für morgen 19:00 erstellt", type: "cron", details: "Cron ID: 054f659c-..." },
-  { time: "04:55:44", action: "Sprachnachricht transkribiert", type: "audio", details: "Whisper API, 3.2s" },
-  { time: "04:47:00", action: "Heartbeat OK", type: "heartbeat", details: "No action needed" },
-  { time: "04:17:00", action: "Heartbeat OK", type: "heartbeat", details: "No action needed" },
+  { time: "16:05", relative: "Just now", action: "Dashboard redesigned to Notion-style", type: "system", details: "8 files, 295 insertions" },
+  { time: "15:41", relative: "24 min ago", action: "Claude Code CLI eingerichtet", type: "system", details: "Max subscription connected" },
+  { time: "11:38", relative: "5h ago", action: "2-Wochen Report erstellt und per Email gesendet", type: "task", details: "PDF: 44KB, Email an boucharebsami0404@gmail.com" },
+  { time: "11:25", relative: "5h ago", action: "Schlafenszeit-Cron auf 22:00 umgestellt", type: "system", details: "Job ID: dd73cfb2" },
+  { time: "11:18", relative: "5h ago", action: "PDF generiert: 2-wochen-report.pdf", type: "file", details: "WeasyPrint, 44KB" },
+  { time: "11:06", relative: "5h ago", action: "Email gesendet: Es schneit in Hamburg", type: "email", details: "SMTP via boucharebsamipaypal@gmail.com" },
+  { time: "05:00", relative: "11h ago", action: "Reminder für morgen 19:00 erstellt", type: "cron", details: "Cron ID: 054f659c" },
+  { time: "04:55", relative: "11h ago", action: "Sprachnachricht transkribiert", type: "audio", details: "Whisper API, 3.2s" },
+  { time: "04:47", relative: "11h ago", action: "Heartbeat OK", type: "heartbeat", details: "No action needed" },
+  { time: "04:17", relative: "12h ago", action: "Heartbeat OK", type: "heartbeat", details: "No action needed" },
 ];
 
-const typeConfig: Record<string, { bg: string; text: string; border: string; icon: React.ElementType }> = {
-  task: { bg: "bg-violet-500/20", text: "text-violet-400", border: "border-violet-500/30", icon: CheckCircle2 },
-  system: { bg: "bg-amber-500/20", text: "text-amber-400", border: "border-amber-500/30", icon: Settings },
-  file: { bg: "bg-blue-500/20", text: "text-blue-400", border: "border-blue-500/30", icon: CheckCircle2 },
-  email: { bg: "bg-emerald-500/20", text: "text-emerald-400", border: "border-emerald-500/30", icon: Mail },
-  cron: { bg: "bg-cyan-500/20", text: "text-cyan-400", border: "border-cyan-500/30", icon: Clock },
-  audio: { bg: "bg-pink-500/20", text: "text-pink-400", border: "border-pink-500/30", icon: Mic },
-  heartbeat: { bg: "bg-zinc-500/20", text: "text-zinc-400", border: "border-zinc-500/30", icon: Heart },
+const typeColors: Record<string, string> = {
+  task: "bg-blue-50 text-blue-600",
+  system: "bg-orange-50 text-orange-600",
+  file: "bg-indigo-50 text-indigo-600",
+  email: "bg-green-50 text-green-600",
+  cron: "bg-purple-50 text-purple-600",
+  audio: "bg-pink-50 text-pink-600",
+  heartbeat: "bg-gray-50 text-gray-500",
 };
 
-const stats = [
-  { label: "Total Events", value: "156", color: "from-violet-500 to-purple-500" },
-  { label: "Tasks", value: "23", color: "from-violet-500 to-purple-500" },
-  { label: "API Calls", value: "47", color: "from-emerald-500 to-teal-500" },
-  { label: "Files", value: "86", color: "from-blue-500 to-cyan-500" },
-];
+const allTypes = ["all", "task", "system", "file", "email", "cron", "audio", "heartbeat"];
 
 export default function Activity() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [visibleCount, setVisibleCount] = useState(8);
+
+  const filtered = activityLog
+    .filter((e) => typeFilter === "all" || e.type === typeFilter)
+    .filter((e) => !searchQuery || e.action.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  const visible = filtered.slice(0, visibleCount);
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="max-w-[900px] mx-auto px-10 py-10 lg:px-16">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Activity</h1>
-          <p className="text-zinc-400">Live feed of all actions and events</p>
+          <h1 className="text-[24px] font-bold text-[var(--fg)]">⚡ Activity</h1>
+          <p className="text-[13px] text-[var(--secondary)] mt-0.5">
+            {activityLog.length} events today
+          </p>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 font-medium transition-all border border-zinc-700/50">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 font-medium transition-all border border-zinc-700/50">
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-        </div>
+        <button className="notion-btn text-[12px]">Export</button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <div key={stat.label} className="glass border border-zinc-800/50 rounded-xl p-5">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}>
-              <span className="text-white font-bold">{stat.value.charAt(0)}</span>
-            </div>
-            <p className="text-2xl font-bold">{stat.value}</p>
-            <p className="text-sm text-zinc-400">{stat.label}</p>
-          </div>
-        ))}
+      {/* Search */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search events..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="notion-input text-[13px]"
+        />
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-          <input
-            type="text"
-            placeholder="Search activity..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-zinc-800/50 border border-zinc-700/50 rounded-xl text-sm focus:outline-none focus:border-violet-500/50"
-          />
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 font-medium transition-all border border-zinc-700/50">
-          <Filter className="w-4 h-4" />
-          Filter
-        </button>
+      {/* Type filter tabs */}
+      <div className="flex gap-0 border-b border-[var(--border)] mb-6 overflow-x-auto">
+        {allTypes.map((t) => {
+          const count = t === "all" ? activityLog.length : activityLog.filter((e) => e.type === t).length;
+          if (count === 0 && t !== "all") return null;
+          return (
+            <button
+              key={t}
+              onClick={() => { setTypeFilter(t); setVisibleCount(8); }}
+              className={`relative px-3 py-2 text-[12px] whitespace-nowrap transition-colors ${
+                typeFilter === t
+                  ? "text-[var(--fg)] font-medium"
+                  : "text-[var(--secondary)] hover:text-[var(--fg)]"
+              }`}
+            >
+              {t === "all" ? "All" : t}
+              <span className="ml-1 text-[10px] text-[var(--tertiary)]">{count}</span>
+              {typeFilter === t && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[var(--fg)] rounded-t" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Timeline */}
+      {/* Activity timeline */}
       <div className="relative">
-        {/* Line */}
-        <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-violet-500/50 via-zinc-800 to-transparent" />
+        {/* Vertical line */}
+        <div className="absolute left-[5px] top-2 bottom-2 w-px bg-[var(--border)]" />
 
-        {/* Events */}
-        <div className="space-y-4">
-          {activityLog.map((event, i) => {
-            const config = typeConfig[event.type] || typeConfig.task;
-            const Icon = config.icon;
-            return (
-              <div key={i} className="flex gap-4 relative group">
-                {/* Icon */}
-                <div
-                  className={`w-12 h-12 rounded-xl ${config.bg} border ${config.border} flex items-center justify-center shrink-0 relative z-10 group-hover:scale-110 transition-transform duration-300`}
-                >
-                  <Icon className={`w-5 h-5 ${config.text}`} />
+        {visible.map((event, i) => (
+          <div key={i} className="relative flex gap-4 mb-1 group">
+            {/* Dot */}
+            <div className="relative z-10 mt-2.5 flex-shrink-0">
+              <span className={`block w-[10px] h-[10px] rounded-full border-2 border-[var(--bg)] ${
+                i === 0 ? "bg-[var(--accent)]" : "bg-[var(--tertiary)]"
+              }`} />
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 py-2 px-3 -mx-1 rounded-[var(--radius)] hover:bg-[var(--hover)] transition-colors">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] text-[var(--fg)]">{event.action}</p>
+                  <p className="text-[11px] text-[var(--secondary)] mt-0.5">{event.details}</p>
                 </div>
-
-                {/* Content */}
-                <div className="flex-1 glass border border-zinc-800/50 rounded-xl p-4 card-hover border-glow">
-                  <div className="flex items-start justify-between mb-2">
-                    <p className="font-medium">{event.action}</p>
-                    <span className="text-xs text-zinc-500 font-mono bg-zinc-800/50 px-2 py-1 rounded-lg">
-                      {event.time}
-                    </span>
-                  </div>
-                  <p className="text-sm text-zinc-400 mb-3">{event.details}</p>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-lg border ${config.bg} ${config.border} ${config.text}`}
-                    >
-                      {event.type}
-                    </span>
-                  </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${typeColors[event.type]}`}>
+                    {event.type}
+                  </span>
+                  <span className="text-[11px] text-[var(--tertiary)] font-mono whitespace-nowrap">
+                    {event.relative}
+                  </span>
                 </div>
               </div>
-            );
-          })}
-        </div>
+            </div>
+          </div>
+        ))}
 
-        {/* Load More */}
-        <div className="mt-8 text-center relative z-10">
-          <button className="px-8 py-3 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 font-medium transition-all border border-zinc-700/50">
-            Load More Events
+        {filtered.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-[13px] text-[var(--secondary)]">No events match your filter</p>
+          </div>
+        )}
+      </div>
+
+      {/* Load more */}
+      {visibleCount < filtered.length && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setVisibleCount(visibleCount + 8)}
+            className="notion-btn text-[12px]"
+          >
+            Load more ({filtered.length - visibleCount} remaining)
           </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

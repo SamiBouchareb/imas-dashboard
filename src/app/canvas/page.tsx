@@ -1,144 +1,136 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Move, Trash2, Edit3, Maximize2 } from "lucide-react";
 
 interface Note {
   id: string;
   content: string;
-  color: string;
   x: number;
   y: number;
+  createdAt: string;
 }
 
-const colorOptions = [
-  { name: "violet", bg: "bg-violet-500/20", border: "border-violet-500/30", text: "text-violet-300" },
-  { name: "blue", bg: "bg-blue-500/20", border: "border-blue-500/30", text: "text-blue-300" },
-  { name: "emerald", bg: "bg-emerald-500/20", border: "border-emerald-500/30", text: "text-emerald-300" },
-  { name: "amber", bg: "bg-amber-500/20", border: "border-amber-500/30", text: "text-amber-300" },
-  { name: "rose", bg: "bg-rose-500/20", border: "border-rose-500/30", text: "text-rose-300" },
-];
-
 const initialNotes: Note[] = [
-  { id: "1", content: "🚀 Polymarket Strategy testen", color: "violet", x: 80, y: 80 },
-  { id: "2", content: "📊 MT5 Live-Trading starten", color: "blue", x: 340, y: 120 },
-  { id: "3", content: "📝 Great Reset Kapitel 4", color: "emerald", x: 600, y: 80 },
-  { id: "4", content: "💰 USDC auf Wallet laden", color: "amber", x: 180, y: 280 },
-  { id: "5", content: "🎯 Dashboard Features erweitern", color: "rose", x: 480, y: 300 },
+  { id: "1", content: "Polymarket Strategy testen", x: 60, y: 60, createdAt: "Feb 15" },
+  { id: "2", content: "MT5 Live-Trading starten", x: 320, y: 100, createdAt: "Feb 15" },
+  { id: "3", content: "Great Reset Kapitel 4 schreiben", x: 580, y: 60, createdAt: "Feb 14" },
+  { id: "4", content: "USDC auf Wallet laden", x: 140, y: 260, createdAt: "Feb 14" },
+  { id: "5", content: "Dashboard Features erweitern", x: 440, y: 280, createdAt: "Feb 13" },
+  { id: "6", content: "ICT Strategy Backtest durchführen", x: 700, y: 240, createdAt: "Feb 12" },
 ];
 
 export default function Canvas() {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [selectedNote, setSelectedNote] = useState<string | null>(null);
+  const [showGrid, setShowGrid] = useState(true);
 
-  const getColorConfig = (colorName: string) => {
-    return colorOptions.find(c => c.name === colorName) || colorOptions[0];
+  const addNote = () => {
+    const newNote: Note = {
+      id: Date.now().toString(),
+      content: "New note...",
+      x: 100 + Math.random() * 300,
+      y: 100 + Math.random() * 200,
+      createdAt: "Just now",
+    };
+    setNotes([...notes, newNote]);
+  };
+
+  const deleteNote = (id: string) => {
+    setNotes(notes.filter((n) => n.id !== id));
+    setSelectedNote(null);
   };
 
   return (
-    <div className="p-8 h-full flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Canvas</h1>
-          <p className="text-zinc-400">Visual workspace for ideas and planning</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 font-medium transition-all border border-zinc-700/50">
-            <Maximize2 className="w-4 h-4" />
-            Fullscreen
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-medium transition-all glow">
-            <Plus className="w-4 h-4" />
-            Add Note
-          </button>
-        </div>
-      </div>
-
+    <div className="h-full flex flex-col">
       {/* Toolbar */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="glass rounded-xl px-4 py-2 flex items-center gap-4 border border-zinc-800/50">
-          <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">Colors</span>
-          <div className="flex gap-2">
-            {colorOptions.map((color) => (
-              <button
-                key={color.name}
-                className={`w-6 h-6 rounded-full ${color.bg} border-2 ${color.border} hover:scale-110 transition-transform`}
-              />
-            ))}
-          </div>
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[var(--border)] bg-[var(--bg)] gap-2 flex-wrap">
+        <div className="flex items-center gap-1">
+          <h1 className="text-[14px] font-semibold text-[var(--fg)] mr-4">🎨 Canvas</h1>
+          <button onClick={addNote} className="notion-btn text-[12px]">
+            + Add Note
+          </button>
+          <button
+            onClick={() => setShowGrid(!showGrid)}
+            className={`notion-btn text-[12px] ${showGrid ? "bg-[var(--active)]" : ""}`}
+          >
+            Grid {showGrid ? "On" : "Off"}
+          </button>
+          {selectedNote && (
+            <button
+              onClick={() => deleteNote(selectedNote)}
+              className="notion-btn text-[12px] text-[var(--danger)] border-red-200 hover:bg-red-50"
+            >
+              Delete
+            </button>
+          )}
         </div>
-        <div className="glass rounded-xl px-4 py-2 flex items-center gap-3 border border-zinc-800/50">
-          <button className="p-1.5 rounded-lg hover:bg-zinc-700/50 transition-colors text-zinc-400 hover:text-white">
-            <Move className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 rounded-lg hover:bg-zinc-700/50 transition-colors text-zinc-400 hover:text-white">
-            <Edit3 className="w-4 h-4" />
-          </button>
-          <button className="p-1.5 rounded-lg hover:bg-zinc-700/50 transition-colors text-zinc-400 hover:text-rose-400">
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="ml-auto text-xs text-zinc-500">
-          {notes.length} notes
+        <div className="flex items-center gap-3 text-[12px] text-[var(--secondary)]">
+          <span>{notes.length} notes</span>
+          <span>·</span>
+          <span>100%</span>
         </div>
       </div>
 
-      {/* Canvas Area */}
-      <div className="flex-1 glass border border-zinc-800/50 rounded-2xl relative overflow-hidden">
-        {/* Grid Pattern */}
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, #fff 1px, transparent 1px),
-              linear-gradient(to bottom, #fff 1px, transparent 1px)
-            `,
-            backgroundSize: "32px 32px"
-          }}
+      {/* Canvas */}
+      <div className="flex-1 relative overflow-hidden bg-[var(--surface)]">
+        {/* Click to deselect — behind notes */}
+        <div
+          className="absolute inset-0 z-0"
+          onClick={() => setSelectedNote(null)}
         />
 
-        {/* Gradient Orbs */}
-        <div className="absolute top-20 left-20 w-64 h-64 bg-violet-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl" />
+        {/* Dot grid */}
+        {showGrid && (
+          <div
+            className="absolute inset-0 opacity-40 pointer-events-none z-[1]"
+            style={{
+              backgroundImage: "radial-gradient(circle, var(--tertiary) 0.8px, transparent 0.8px)",
+              backgroundSize: "24px 24px",
+            }}
+          />
+        )}
 
         {/* Notes */}
         {notes.map((note) => {
-          const colorConfig = getColorConfig(note.color);
           const isSelected = selectedNote === note.id;
           return (
             <div
               key={note.id}
-              onClick={() => setSelectedNote(isSelected ? null : note.id)}
-              className={`absolute p-4 rounded-xl border cursor-move select-none min-w-[220px] transition-all duration-200 ${colorConfig.bg} ${colorConfig.border} ${colorConfig.text} ${
-                isSelected ? "ring-2 ring-white/20 scale-105 z-10" : "hover:scale-[1.02]"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedNote(isSelected ? null : note.id);
+              }}
+              className={`absolute z-[2] bg-[var(--bg)] rounded-[var(--radius-lg)] border cursor-move select-none min-w-[180px] sm:min-w-[200px] max-w-[280px] transition-all duration-150 ${
+                isSelected
+                  ? "border-[var(--accent)] shadow-md ring-2 ring-[var(--accent-light)] z-10"
+                  : "border-[var(--border)] hover:shadow-sm hover:border-[#dddcda]"
               }`}
               style={{ left: note.x, top: note.y }}
             >
-              <p className="text-sm font-medium">{note.content}</p>
-              <div className="flex items-center justify-between mt-3 pt-2 border-t border-white/10">
-                <span className="text-[10px] uppercase tracking-wider opacity-50">Note</span>
-                <div className="flex gap-1">
-                  <button className="p-1 rounded hover:bg-white/10 transition-colors">
-                    <Edit3 className="w-3 h-3" />
-                  </button>
-                  <button className="p-1 rounded hover:bg-white/10 transition-colors">
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                </div>
+              {/* Drag handle */}
+              <div className={`px-3 py-1 border-b border-[var(--border)] flex items-center justify-between transition-opacity ${
+                isSelected ? "opacity-100" : "opacity-0 hover:opacity-100"
+              }`}>
+                <span className="text-[var(--tertiary)] text-[10px] tracking-widest">⋮⋮</span>
+                <span className="text-[10px] text-[var(--tertiary)]">{note.createdAt}</span>
+              </div>
+              {/* Content */}
+              <div className="px-3 py-2.5">
+                <p className="text-[13px] text-[var(--fg)] leading-relaxed">{note.content}</p>
               </div>
             </div>
           );
         })}
 
-        {/* Empty State */}
+        {/* Empty state */}
         {notes.length === 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 flex items-center justify-center mb-4">
-              <Plus className="w-8 h-8 text-zinc-500" />
-            </div>
-            <p className="text-zinc-400 font-medium">No notes yet</p>
-            <p className="text-zinc-500 text-sm">Click &quot;Add Note&quot; to get started</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <p className="text-[40px] mb-3">🎨</p>
+            <p className="text-[14px] text-[var(--fg)] font-medium mb-1">No notes yet</p>
+            <p className="text-[12px] text-[var(--secondary)] mb-4">Add your first note to get started</p>
+            <button onClick={addNote} className="notion-btn-primary text-[12px]">
+              + Add Note
+            </button>
           </div>
         )}
       </div>

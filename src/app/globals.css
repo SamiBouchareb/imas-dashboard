@@ -1,102 +1,164 @@
 @import "tailwindcss";
 
 :root {
-  --background: #050505;
-  --foreground: #fafafa;
+  --bg: #ffffff;
+  --surface: #fbfbfa;
+  --fg: #37352f;
+  --secondary: #9b9a97;
+  --tertiary: #c4c3c0;
+  --border: #ebebea;
+  --hover: #f7f6f3;
+  --active: #efefee;
+  --accent: #2eaadc;
+  --accent-light: #d3edf6;
+  --danger: #eb5757;
+  --success: #4dab9a;
+  --warning: #f0b449;
+  --radius: 6px;
+  --radius-lg: 8px;
+  --sidebar-width: 240px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(139, 92, 246, 0.4);
+  background: rgba(46, 170, 220, 0.15);
+}
+
+/* Scrollbar — Notion style (appears on hover) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: transparent; border-radius: 4px; border: 2px solid transparent; background-clip: content-box; }
+*:hover > ::-webkit-scrollbar-thumb { background: var(--tertiary); background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--secondary); background-clip: content-box; }
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: 3px;
+}
+*:focus:not(:focus-visible) { outline: none; }
+
+/* Notion card */
+.notion-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+}
+.notion-card:hover {
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+  border-color: #dddcda;
+}
+
+/* Notion input */
+.notion-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.notion-input:hover { border-color: #dddcda; }
+.notion-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+.notion-input::placeholder { color: var(--tertiary); }
+
+/* Shared button base */
+.notion-btn-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease, opacity 100ms ease;
+}
+.notion-btn-base:active {
+  opacity: 0.85;
+}
+
+/* Secondary button */
+.notion-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+.notion-btn:hover { background: var(--hover); border-color: #dddcda; }
+.notion-btn:active { background: var(--active); }
+
+/* Primary button */
+.notion-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 100ms ease;
+  border: none;
+  background: var(--accent);
   color: white;
 }
+.notion-btn-primary:hover { background: #2898c4; }
+.notion-btn-primary:active { background: #2488b0; }
 
-/* Glass effect */
-.glass {
-  background: rgba(24, 24, 27, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+/* Section heading — consistent across pages */
+.section-heading {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #a78bfa 0%, #818cf8 50%, #6366f1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+/* Responsive: hide sidebar on mobile, show overlay toggle */
+@media (max-width: 768px) {
+  aside:not(.sidebar-open) { display: none !important; }
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 40;
+  }
+}
+@media (min-width: 769px) {
+  .sidebar-overlay { display: none !important; }
+  .sidebar-toggle { display: none !important; }
 }
 
-/* Glow effect */
-.glow {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
-}
-
-.glow-sm {
-  box-shadow: 0 0 10px rgba(139, 92, 246, 0.1);
-}
-
-/* Smooth transitions */
-* {
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Card hover effect */
-.card-hover {
-  transition: all 0.3s ease;
-}
-
-.card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Subtle border glow on hover */
-.border-glow:hover {
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
-}
-
-/* Animated gradient background */
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient-shift 8s ease infinite;
-}
-
-/* Pulse animation */
-@keyframes pulse-soft {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.animate-pulse-soft {
-  animation: pulse-soft 2s ease-in-out infinite;
+/* Monospace */
+.font-mono {
+  font-family: "SFMono-Regular", Menlo, Consolas, "Liberation Mono", Courier, monospace;
+  font-size: 0.85em;
 }

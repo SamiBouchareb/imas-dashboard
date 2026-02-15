@@ -1,14 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Database, Table, Search, Plus, RefreshCw, Download, ChevronLeft, ChevronRight, HardDrive } from "lucide-react";
 
 const tables = [
-  { name: "activity", rows: 156, size: "24 KB", icon: "📊" },
-  { name: "reports", rows: 47, size: "2.1 MB", icon: "📄" },
-  { name: "todos", rows: 23, size: "4 KB", icon: "✓" },
-  { name: "agents", rows: 8, size: "1 KB", icon: "🤖" },
-  { name: "files", rows: 128, size: "12.4 MB", icon: "📁" },
+  { name: "activity", rows: 156, size: "24 KB" },
+  { name: "reports", rows: 47, size: "2.1 MB" },
+  { name: "todos", rows: 23, size: "4 KB" },
+  { name: "agents", rows: 8, size: "1 KB" },
+  { name: "files", rows: 128, size: "12.4 MB" },
 ];
 
 const sampleData = [
@@ -17,179 +16,170 @@ const sampleData = [
   { id: 3, message: "Reminder gesetzt", type: "cron", created_at: "2026-02-15 05:00:12" },
   { id: 4, message: "Email gesendet (Schnee)", type: "email", created_at: "2026-02-15 11:06:23" },
   { id: 5, message: "Marokko-Buch fertiggestellt", type: "task", created_at: "2026-02-14 14:29:00" },
+  { id: 6, message: "Portfolio deployed", type: "system", created_at: "2026-02-14 12:15:33" },
+  { id: 7, message: "MT5 API verbunden", type: "system", created_at: "2026-02-13 09:44:11" },
+  { id: 8, message: "Moltbook Kommentar", type: "task", created_at: "2026-02-13 08:22:05" },
 ];
 
 const typeColors: Record<string, string> = {
-  task: "bg-violet-500/20 text-violet-400",
-  system: "bg-amber-500/20 text-amber-400",
-  cron: "bg-blue-500/20 text-blue-400",
-  email: "bg-emerald-500/20 text-emerald-400",
+  task: "bg-blue-50 text-blue-600",
+  system: "bg-orange-50 text-orange-600",
+  cron: "bg-purple-50 text-purple-600",
+  email: "bg-green-50 text-green-600",
 };
+
+type SortKey = "id" | "message" | "type" | "created_at";
+type SortDir = "asc" | "desc";
 
 export default function DatabasePage() {
   const [selectedTable, setSelectedTable] = useState("activity");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("id");
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [page, setPage] = useState(1);
 
-  const totalSize = tables.reduce((acc, t) => {
-    const num = parseFloat(t.size);
-    const unit = t.size.includes("MB") ? 1000 : 1;
-    return acc + num * unit;
-  }, 0);
+  const table = tables.find((t) => t.name === selectedTable);
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir(sortDir === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ col }: { col: SortKey }) => (
+    <span className={`ml-1 text-[10px] ${sortKey === col ? "text-[var(--fg)]" : "text-[var(--tertiary)] opacity-0 group-hover:opacity-100"} transition-opacity`}>
+      {sortKey === col ? (sortDir === "asc" ? "↑" : "↓") : "↕"}
+    </span>
+  );
+
+  const filteredData = sampleData.filter(
+    (d) => !searchQuery || d.message.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="p-8 h-full flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Database</h1>
-          <p className="text-zinc-400">Explore and manage your data</p>
+    <div className="h-full flex">
+      {/* Tables sidebar */}
+      <div className="w-[200px] border-r border-[var(--border)] flex flex-col bg-[var(--surface)]">
+        <div className="px-3 py-3 border-b border-[var(--border)]">
+          <h2 className="text-[12px] font-semibold text-[var(--secondary)] uppercase tracking-wide">
+            📊 Database
+          </h2>
         </div>
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-800/50 hover:bg-zinc-800 text-zinc-300 font-medium transition-all border border-zinc-700/50">
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-medium transition-all glow">
-            <Plus className="w-4 h-4" />
-            Insert Row
-          </button>
+        <div className="flex-1 overflow-auto px-2 py-2">
+          <p className="px-2 mb-1 text-[10px] font-semibold text-[var(--tertiary)] uppercase tracking-wider">
+            Tables
+          </p>
+          {tables.map((t) => (
+            <button
+              key={t.name}
+              onClick={() => { setSelectedTable(t.name); setPage(1); }}
+              className={`w-full text-left px-2.5 py-1.5 rounded-[var(--radius)] text-[13px] transition-colors mb-0.5 ${
+                selectedTable === t.name
+                  ? "bg-[var(--active)] text-[var(--fg)] font-medium"
+                  : "text-[var(--secondary)] hover:bg-[var(--hover)]"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span>{t.name}</span>
+                <span className="text-[10px] text-[var(--tertiary)]">{t.rows}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+        <div className="px-3 py-3 border-t border-[var(--border)]">
+          <p className="text-[11px] text-[var(--tertiary)]">
+            {tables.reduce((a, t) => a + t.rows, 0)} total rows
+          </p>
         </div>
       </div>
 
-      <div className="flex gap-6 flex-1 min-h-0">
-        {/* Tables Sidebar */}
-        <div className="w-72 shrink-0 flex flex-col">
-          {/* Storage Info */}
-          <div className="glass rounded-xl p-4 border border-zinc-800/50 mb-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
-                <HardDrive className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <p className="font-semibold">Storage</p>
-                <p className="text-xs text-zinc-500">{(totalSize / 1000).toFixed(1)} MB used</p>
-              </div>
-            </div>
-            <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
-              <div className="h-full w-1/4 bg-gradient-to-r from-violet-500 to-purple-500 rounded-full" />
+      {/* Data area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-[var(--border)]">
+          <div className="flex items-center gap-3">
+            <div>
+              <h3 className="text-[14px] font-semibold text-[var(--fg)]">{selectedTable}</h3>
+              <p className="text-[11px] text-[var(--secondary)]">{table?.rows} rows · {table?.size}</p>
             </div>
           </div>
-
-          {/* Tables List */}
-          <div className="flex-1 overflow-auto">
-            <p className="px-3 py-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-              Tables
-            </p>
-            <div className="space-y-1">
-              {tables.map((table) => (
-                <button
-                  key={table.name}
-                  onClick={() => setSelectedTable(table.name)}
-                  className={`w-full text-left px-4 py-3 rounded-xl transition-all ${
-                    selectedTable === table.name
-                      ? "bg-gradient-to-r from-violet-500/20 to-purple-500/10 border border-violet-500/20 text-white"
-                      : "text-zinc-400 hover:text-white hover:bg-zinc-800/50"
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{table.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">{table.name}</span>
-                        <span className="text-xs text-zinc-500">{table.rows}</span>
-                      </div>
-                      <span className="text-xs text-zinc-500">{table.size}</span>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Filter rows..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="notion-input w-[200px] text-[12px] py-1"
+            />
+            <button className="notion-btn-primary text-[12px]">+ New</button>
           </div>
         </div>
 
-        {/* Data View */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <div className="glass border border-zinc-800/50 rounded-2xl overflow-hidden flex flex-col flex-1">
-            {/* Table Header */}
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-zinc-800 flex items-center justify-center">
-                  <Table className="w-5 h-5 text-zinc-400" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">{selectedTable}</h3>
-                  <p className="text-xs text-zinc-500">
-                    {tables.find((t) => t.name === selectedTable)?.rows} rows
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <input
-                    type="text"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 pr-4 py-2 bg-zinc-800/50 border border-zinc-700/50 rounded-lg text-sm focus:outline-none focus:border-violet-500/50 w-64"
-                  />
-                </div>
-                <button className="p-2 rounded-lg hover:bg-zinc-700/50 transition-colors text-zinc-400 hover:text-white">
-                  <Download className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+        {/* Table */}
+        <div className="flex-1 overflow-auto">
+          <table className="w-full">
+            <thead className="sticky top-0 bg-[var(--surface)] border-b border-[var(--border)]">
+              <tr>
+                {(["id", "message", "type", "created_at"] as SortKey[]).map((col) => (
+                  <th
+                    key={col}
+                    onClick={() => handleSort(col)}
+                    className={`group text-left px-4 py-2 text-[11px] font-semibold text-[var(--secondary)] uppercase tracking-wider cursor-pointer hover:text-[var(--fg)] transition-colors ${
+                      col === "id" ? "w-12" : col === "type" ? "w-20" : col === "created_at" ? "w-44" : ""
+                    }`}
+                  >
+                    {col}
+                    <SortIcon col={col} />
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((row) => (
+                <tr key={row.id} className="border-b border-[var(--border)] hover:bg-[var(--hover)] transition-colors cursor-pointer">
+                  <td className="px-4 py-2 text-[12px] text-[var(--secondary)] font-mono">{row.id}</td>
+                  <td className="px-4 py-2 text-[13px] text-[var(--fg)]">{row.message}</td>
+                  <td className="px-4 py-2">
+                    <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${typeColors[row.type] || "bg-gray-50 text-gray-600"}`}>
+                      {row.type}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 text-[12px] text-[var(--secondary)] font-mono">{row.created_at}</td>
+                </tr>
+              ))}
+              {filteredData.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="text-center py-12 text-[var(--secondary)] text-[13px]">
+                    No results found for &quot;{searchQuery}&quot;
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-            {/* Table */}
-            <div className="overflow-auto flex-1">
-              <table className="w-full">
-                <thead className="sticky top-0 bg-zinc-900/90 backdrop-blur-sm">
-                  <tr className="text-left text-sm text-zinc-400 border-b border-zinc-800/50">
-                    <th className="px-4 py-3 font-medium w-16">id</th>
-                    <th className="px-4 py-3 font-medium">message</th>
-                    <th className="px-4 py-3 font-medium w-28">type</th>
-                    <th className="px-4 py-3 font-medium w-44">created_at</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sampleData.map((row) => (
-                    <tr 
-                      key={row.id} 
-                      className="border-b border-zinc-800/30 hover:bg-zinc-800/30 transition-colors cursor-pointer"
-                    >
-                      <td className="px-4 py-3 text-zinc-500 font-mono text-sm">{row.id}</td>
-                      <td className="px-4 py-3 font-medium">{row.message}</td>
-                      <td className="px-4 py-3">
-                        <span className={`text-xs px-2.5 py-1 rounded-lg ${typeColors[row.type] || "bg-zinc-800"}`}>
-                          {row.type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-zinc-400 font-mono text-sm">
-                        {row.created_at}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            <div className="flex items-center justify-between p-4 border-t border-zinc-800/50">
-              <span className="text-sm text-zinc-400">
-                Showing <span className="text-white">1-5</span> of <span className="text-white">{tables.find((t) => t.name === selectedTable)?.rows}</span> rows
-              </span>
-              <div className="flex items-center gap-2">
-                <button className="p-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors disabled:opacity-50" disabled>
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="px-3 py-1 rounded-lg bg-violet-500/20 text-violet-400 text-sm font-medium">1</span>
-                <button className="px-3 py-1 rounded-lg hover:bg-zinc-700/50 transition-colors text-sm">2</button>
-                <button className="px-3 py-1 rounded-lg hover:bg-zinc-700/50 transition-colors text-sm">3</button>
-                <button className="p-2 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 transition-colors">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+        {/* Pagination */}
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-[var(--border)] text-[12px] text-[var(--secondary)]">
+          <span>
+            Showing 1–{filteredData.length} of {table?.rows} rows
+          </span>
+          <div className="flex items-center gap-1">
+            <button onClick={() => setPage(Math.max(1, page - 1))} className="notion-btn text-[11px] px-2 py-1">←</button>
+            {[1, 2, 3].map((p) => (
+              <button
+                key={p}
+                onClick={() => setPage(p)}
+                className={`px-2 py-1 rounded-[var(--radius)] text-[11px] transition-colors ${
+                  page === p ? "bg-[var(--active)] text-[var(--fg)] font-medium" : "hover:bg-[var(--hover)]"
+                }`}
+              >
+                {p}
+              </button>
+            ))}
+            <button onClick={() => setPage(Math.min(3, page + 1))} className="notion-btn text-[11px] px-2 py-1">→</button>
           </div>
         </div>
       </div>
